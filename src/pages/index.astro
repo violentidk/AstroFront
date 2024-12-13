@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProductCard from '../components/ProductCard.astro';
+
+const products = [
+  {
+    title: "Product 1",
+    price: 99.99,
+    image: "/assets/product1.jpg",
+    slug: "product-1"
+  },
+  {
+    title: "Product 2",
+    price: 149.99,
+    image: "/assets/product2.jpg",
+    slug: "product-2"
+  }
+  // Lisa rohkem tooteid
+];
+---
+
+<Layout title="Home">
+  <h1 class="text-4xl font-bold mb-8">Featured Products</h1>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {products.map(product => (
+      <ProductCard {...product} />
+    ))}
+  </div>
+</Layout> 

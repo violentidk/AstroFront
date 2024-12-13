@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  // Siin peaks olema teie toodete andmed
+  const products = [
+    {
+      title: "Product 1",
+      price: 99.99,
+      description: "Detailed description...",
+      image: "/assets/product1.jpg",
+      slug: "product-1"
+    },
+    // Lisa rohkem tooteid
+  ];
+
+  return products.map(product => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+---
+
+<Layout title={product.title}>
+  <div class="grid md:grid-cols-2 gap-8">
+    <img 
+      src={product.image} 
+      alt={product.title}
+      class="w-full rounded-lg shadow-md"
+    />
+    <div>
+      <h1 class="text-3xl font-bold">{product.title}</h1>
+      <p class="text-2xl text-blue-600 my-4">${product.price}</p>
+      <p class="text-gray-600">{product.description}</p>
+      <button
+        class="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+      >
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</Layout> 

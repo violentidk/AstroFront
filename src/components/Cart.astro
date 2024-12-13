@@ -1,0 +1,125 @@
+---
+---
+<div class="relative" x-data="{ isOpen: false }">
+  <button 
+    @click="isOpen = !isOpen"
+    class="flex items-center space-x-1 text-gray-700 hover:text-blue-600"
+  >
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <span class="cart-count">0</span>
+  </button>
+
+  <div 
+    x-show="isOpen" 
+    @click.away="isOpen = false"
+    class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl z-50"
+  >
+    <div class="p-4">
+      <h3 class="text-lg font-semibold mb-2">Shopping Cart</h3>
+      <div id="cart-items" class="space-y-2">
+        <!-- Cart items will be inserted here -->
+      </div>
+      <div class="border-t mt-4 pt-4">
+        <div class="flex justify-between font-semibold">
+          <span>Total:</span>
+          <span id="cart-total">$0.00</span>
+        </div>
+        <button 
+          class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+        >
+          Checkout
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  class Cart {
+    items: Map<string, { title: string; price: number; quantity: number }>;
+    
+    constructor() {
+      this.items = new Map();
+      this.loadFromStorage();
+      this.updateUI();
+    }
+
+    addItem(id: string, title: string, price: number) {
+      if (this.items.has(id)) {
+        const item = this.items.get(id)!;
+        item.quantity += 1;
+      } else {
+        this.items.set(id, { title, price, quantity: 1 });
+      }
+      this.saveToStorage();
+      this.updateUI();
+    }
+
+    removeItem(id: string) {
+      this.items.delete(id);
+      this.saveToStorage();
+      this.updateUI();
+    }
+
+    updateUI() {
+      const cartCount = document.querySelector('.cart-count');
+      const cartItems = document.getElementById('cart-items');
+      const cartTotal = document.getElementById('cart-total');
+
+      if (cartCount && cartItems && cartTotal) {
+        const totalQuantity = Array.from(this.items.values())
+          .reduce((sum, item) => sum + item.quantity, 0);
+        
+        cartCount.textContent = totalQuantity.toString();
+
+        cartItems.innerHTML = Array.from(this.items.entries())
+          .map(([id, item]) => `
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-medium">${item.title}</p>
+                <p class="text-sm text-gray-600">$${item.price} x ${item.quantity}</p>
+              </div>
+              <button 
+                onclick="cart.removeItem('${id}')"
+                class="text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
+          `).join('');
+
+        const total = Array.from(this.items.values())
+          .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        cartTotal.textContent = `$${total.toFixed(2)}`;
+      }
+    }
+
+    private saveToStorage() {
+      localStorage.setItem('cart', JSON.stringify(Array.from(this.items.entries())));
+    }
+
+    private loadFromStorage() {
+      const stored = localStorage.getItem('cart');
+      if (stored) {
+        this.items = new Map(JSON.parse(stored));
+      }
+    }
+  }
+
+  // Initialize cart
+  const cart = new Cart();
+  (window as any).cart = cart;
+
+  // Add event listeners to "Add to Cart" buttons
+  document.querySelectorAll('[data-add-to-cart]').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const { id, title, price } = target.dataset;
+      if (id && title && price) {
+        cart.addItem(id, title, parseFloat(price));
+      }
+    });
+  });
+</script> 

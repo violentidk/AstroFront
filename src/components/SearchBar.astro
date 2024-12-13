@@ -1,0 +1,36 @@
+---
+---
+<div class="relative">
+  <input 
+    type="search" 
+    id="search"
+    placeholder="Search products..."
+    class="w-full p-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <svg 
+    class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+    fill="none" 
+    stroke="currentColor" 
+    viewBox="0 0 24 24"
+  >
+    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+</div>
+
+<script>
+  const searchInput = document.getElementById('search');
+  const products = document.querySelectorAll('.product-card');
+
+  searchInput?.addEventListener('input', (e) => {
+    const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+    
+    products.forEach(product => {
+      const title = product.querySelector('h3')?.textContent?.toLowerCase() || '';
+      if (title.includes(searchTerm)) {
+        product.classList.remove('hidden');
+      } else {
+        product.classList.add('hidden');
+      }
+    });
+  });
+</script> 
